@@ -1,0 +1,7 @@
+<div class="navigation">
+  <%= link_to(image_tag('map.png', :style => "border: 0px;"), my_map_path(@map)) %><%= link_to(h(@map.name), my_map_path(@map), :style => "text-decoration: none;") %>
+  <% if @visit && !@visit.new_record? -%>
+    <span>&gt;&gt;</span>
+    <%= link_to visit_short_name(@visit), my_visit_path(:id => @visit.id) %>
+  <% end -%>
+</div>

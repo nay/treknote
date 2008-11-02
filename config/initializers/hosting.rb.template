@@ -1,0 +1,6 @@
+# Create your hosting.rb using this template.
+SUPPORT_EMAIL_ADDRESS = "info@youraccount.com"
+ROOT_URL              = "http://localhost:3000"
+SKIP_MAIL             = false
+# GOOGLE_MAPS_KEY       = "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+# FLICKR_KEY            = 'xxxxxxxxxxxxxxxxxxxxxxxxxx'

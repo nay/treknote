@@ -1,0 +1,24 @@
+<h1>Editing spot</h1>
+
+<% form_for(@spot) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :latitude %><br />
+    <%= f.text_field :latitude %>
+  </p>
+  <p>
+    <%= f.label :longitude %><br />
+    <%= f.text_field :longitude %>
+  </p>
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @spot %> |
+<%= link_to 'Back', spots_path %>

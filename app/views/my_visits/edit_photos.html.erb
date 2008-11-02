@@ -1,0 +1,134 @@
+<% content_for(:head) do -%>
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+  <%= javascript_include_tag 'jsr_class'%>
+  <% javascript_tag do -%>
+function searchFlickr(page) {
+  request = { user_id: "<%= current_user.flickr_id %>"};
+  request.api_key = '<%= FLICKR_KEY %>';
+  request.method = 'flickr.photos.search';
+  if (page == undefined) {
+    page = 1;
+  }
+  request.page = page;
+  request.per_page = 20;
+  request.format = 'json';
+  request.jsoncallback = 'resultFlickr';
+
+  var url = 'http://www.flickr.com/services/rest/?' + $H(request).toQueryString();
+
+  // JSONP呼び出し
+  var json = new JSONscriptRequest(url);
+  json.buildScriptTag();
+  json.addScriptTag();
+  
+  // サーバへ作業状態を報告
+  <%= remote_function :url => remember_edit_photos_status_my_visit_path, :method => :put, :with => "'tab=flickr&page=' + page" %>;
+};
+
+var photos = null;
+
+function resultFlickr( res ) {
+  // validation
+  if (! res ) return;
+  if (! res.photos ) return;
+  var pages = res.photos.pages;
+  var page = res.photos.page;
+  var list = res.photos.photo;
+  if (! list ) return;
+  if (! list.length ) return;
+
+  $("viewFlickr").innerHTML = viewFlickr(list, page, pages);
+  photos = list;
+};
+
+function viewFlickr(photos, page, pages) {
+  var line = '<%= 
+    image_tag('http://farm#{farm}.static.flickr.com/#{server}/#{id}_#{secret}_s.jpg', :onclick => 'selectPhoto(\"#{id}\")', :style => "margin-left: 2px; margin-right: 2px;") %>';
+  var template = new Template(line);
+
+  var paginate = '';
+  if (page == 1) {
+    paginate += '<span>前</span>';
+  } else {
+    paginate += '<a href="javascript: searchFlickr(' + (page - 1) + ');">前</a> ';
+  }
+  paginate += ' ';
+  var visible = visiblePageNumbers(page, pages);
+  var prev = null;
+  for (var i = 0; i < visible.length; i++ ) {
+    var targetPage = visible[i];
+    if (prev && prev != targetPage - 1) {
+      paginate += '<span class="gap">&hellip;</span> ';
+    }
+    if (targetPage != page) {
+      paginate += '<a href="javascript: searchFlickr(' + targetPage + ');">' +  targetPage + "</a> ";
+    } else {
+      paginate += '<span class="current">' + targetPage + '</span> ';
+    }
+    prev = targetPage;
+  }
+  if (page == pages) {
+    paginate += '<span>次</span>';
+  } else {
+    paginate += '<a href="javascript: searchFlickr(' + (page + 1) + ');">次</a>';
+  }
+  paginate = '<div class="pagination">' + paginate + '</div>';
+
+  var result = '';
+  result += paginate;
+  for (var i = 0; i < photos.length; i++) {
+    var photo = photos[i];
+    photo.count = i;
+    result += template.evaluate(photo);
+  }
+  result += '<div style="clear: left;"></div>';
+
+  return result;
+};
+
+function selectPhoto(id) {
+  photo = photos.detect(function(value, index) {
+    return (value.id == id) ? true : false;
+  });
+  var params = {
+    "photo[flickr_photo_id]": photo.id,
+    "photo[flickr_server]": photo.server,
+    "photo[flickr_farm]": photo.farm,
+    "photo[flickr_secret]": photo.secret,
+    "photo[name]": photo.title
+  };
+  <%= remote_function :url => my_photos_path, :method => :post, :with => "$H(params).toQueryString()" %>;
+};
+  <% end -%>
+<% end -%>
+
+<%= render :partial => 'shared/my_trek_navigation' %>
+<div class="blackPaper"">
+  <h1>写真の登録</h1>
+  <% if params[:mode] == 'continue' -%>
+  <%= render :partial => 'steps', :locals => {:step => 2} %>
+  <div class="operation"><%= link_to "登録を完了", my_visit_path %></div>
+  <% else -%>
+  <div class="operation"><%= link_to "戻る", my_visit_path %> <%= link_to '公開中のアルバムへ', photos_path %></div>
+  <% end %>
+</div>
+<%= render :partial => 'shared/notice' %>
+
+<div>
+  <div id="photos" class="blackPaper hasTopSpace">
+    <%= render :partial => 'my_photos/list', :locals => {:photos => @visit.photos.paginate(:page => @my_photos_page, :per_page => 6)}%>
+  </div>
+
+  <div id="photo_selector">
+  <%= render :partial => "from_#{@tab.to_s}" %>
+  <% if @tab == :flickr -%>
+    <% javascript_tag do -%>
+      searchFlickr(<%= @page %>);
+    <% end -%>
+  <% end -%>
+  </div>
+  <div style="clear:left;"></div>
+</div>
+<iframe style="display:none;" id="upload_target" name="upload_target"></iframe>
+

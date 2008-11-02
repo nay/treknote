@@ -1,0 +1,23 @@
+<div class="blackPaper">
+  <h1>旅の地図「<%= h @map.name %>」の変更</h1>
+  <div class="operation"><%= link_to '戻る', my_maps_path %></div>
+</div>
+
+<div class="paper hasTopSpace">
+  <%= error_messages_for :map %>
+  <% form_for(:map, :object => @map, :url => my_map_path(:id => @map.id), :html => {:method => :put}) do |f| -%>
+  <table>
+    <tr>
+      <th>旅の地図の名前:</th>
+      <td><%= f.text_field :name, :size => 30 %></td>
+    </tr>
+    <tr>
+      <th>この地図に関する説明:</th>
+      <td><%= f.text_area :description, :cols => 30, :rows => 5 %></td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align: center;"><%= submit_tag '変更' %></td>
+    </tr>
+  </table>
+  <% end -%>
+</div>

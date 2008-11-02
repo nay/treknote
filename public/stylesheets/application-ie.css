@@ -1,0 +1,65 @@
+.paper {
+  background-color: rgb(240, 240, 240);
+  color:  rgb(77, 77, 77);
+  padding: 16px;
+}
+.lightPaper {
+  background-color: rgb(210, 210, 210);
+  color:  rgb(77, 77, 77);
+  padding: 16px;
+}
+.paper a, .lightPaper a {
+  color: rgb(0, 114, 171);
+}
+.paper .current, .blackPaper .current {
+  color: rgba(255, 128, 128, 0.7);
+}
+.blackPaper {
+  background-color: rgb(77, 77, 77);
+  color: rgb(179, 179, 179);
+}
+.greenPaper {
+  background-color: rgb(140, 179, 161);
+  color: rgb(77, 77, 77);
+}
+.blackPaper a, .navigation a {
+  color: rgb(181, 255, 230);
+}
+.blackPaper h1 {
+  border-bottom: 1px solid rgb(240, 240, 240);
+}
+.navigation {
+  background-color: rgb(102, 102, 102);
+  color: rgb(240, 240, 240);
+}
+#myVisitSummary {
+  background-color: rgb(77, 77, 77);
+  color: rgb(240, 240, 240);
+  padding: 1em;
+  margin-bottom: 1em;
+}
+#footer {
+  background-color: rgb(77, 77, 77);
+  color: rgb(240, 240, 240);
+  font-size: small;
+  margin-top: 20px;
+  text-align: right;
+}
+#header {
+  background-color: rgb(120, 120, 120);
+  color: rgb(240, 240, 240);
+  text-align: right;
+}
+#header a {
+  color: rgb(181, 255, 230);
+}
+
+.campaign {
+  color:rgb(204, 64, 64);
+}
+
+/* my_visit.css */
+#myVisitSummary a {
+  color: rgb(181, 255, 230);
+}
+

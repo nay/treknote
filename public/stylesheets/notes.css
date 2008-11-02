@@ -1,0 +1,41 @@
+/* For Note Oriented Pages */
+#page {
+  width: 896px;
+  margin: 0 auto;
+}
+
+#title {
+  margin-bottom: 20px;
+}
+#title h1 a {
+  text-decoration: none;
+}
+
+#notes {
+  float: left;
+  width: 392px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+#photos {
+  float: left;
+  width: 200px;
+  text-align: center;
+}
+#summary {
+  float: left;
+  width: 200px;
+}
+#notes h2 {
+  font-size: 140%;
+  border-bottom: 1px solid #000000;
+  margin-bottom: 1em;
+}
+.noteArticle {
+  
+}
+.noteArticleFooter {
+  text-align: right;
+  border-top: 1px solid rgba(0, 0, 0, 0.7);
+  font-size: small;
+}

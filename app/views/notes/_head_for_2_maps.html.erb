@@ -1,0 +1,23 @@
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script> 
+  <% javascript_tag do -%>
+    function onLoad() {
+      // create maps
+      if (GBrowserIsCompatible()) {
+        var map1 = new GMap2(document.getElementById("map1"));
+        map1.disableDragging();
+        var center = new GLatLng(<%= @visit.spot.latitude %>, <%= @visit.spot.longitude %>);
+        map1.setCenter(center, 5);
+        var marker = new GMarker(center);
+        map1.addOverlay(marker);
+        
+        var map2 = new GMap2(document.getElementById("map2"));
+        map2.disableDragging();
+        map2.setCenter(center, 13);
+        var marker = new GMarker(center);
+        map2.addOverlay(marker);
+      }
+    }
+    Event.observe(window, "load", onLoad);
+    Event.observe(window, "unload", GUnload);
+	<% end -%>

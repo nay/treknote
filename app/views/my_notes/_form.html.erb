@@ -1,0 +1,30 @@
+<% 
+  if @note.new_record?
+		url = my_notes_path
+    method = :post
+  else
+		url = my_note_path(:id => @note.id)
+    method = :put
+  end
+%>      
+      <% form_for @note, :url => url, :method => method do |f| -%>
+      <table  width="100%">
+        <tr>
+          <th>題：</th>
+          <td><%= f.text_field :subject, :size => 40 %></td>
+        </tr>
+        <tr>
+          <th>本文：</th>
+          <td><%= f.text_area :body, :cols => 40, :rows => 12 %></td>
+        </tr>
+        <% unless @note.new_record? -%>
+        <tr>
+          <td colspan="2" style="font-size: small; text-align: center;"><%= format_datetime @note.created_at %> 作成</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="font-size: small; text-align: center;"><%= format_datetime @note.updated_at %> 更新</td>
+        </tr>
+        <% end -%>
+      </table>
+      <div style="text-align: center;"><%= f.submit @note.new_record? ? '登録' : '更新' %></div>
+      <% end -%>

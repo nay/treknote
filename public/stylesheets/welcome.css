@@ -1,0 +1,15 @@
+#page {
+  width: 804px;
+  margin: 0 auto;
+}
+#main {
+  width: 500px;
+  float: left;
+}
+#side {
+  width: 252px;
+  float: left;
+}
+#side input {
+  width: 200px;
+}

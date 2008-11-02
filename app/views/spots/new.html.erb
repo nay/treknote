@@ -1,0 +1,166 @@
+<% content_for(:head) do -%>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+	<% javascript_tag do -%>
+      var map = null;
+	  var centerLat = <%= @lat || 'null' %>;
+	  var centerLng = <%= @lng || 'null' %>;
+	  var zoom = <%= @zoom || 'null' %>;
+     var geocoder = new GClientGeocoder();
+	<% end -%>
+<% end -%>
+
+<% javascript_tag do -%>
+    function load() {
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"));
+        map.enableDoubleClickZoom();
+        map.setCenter(new GLatLng(<%= @lat %>, <%= @lng %>), <%= @zoom%>);
+        map.addControl(new GLargeMapControl());
+        GEvent.addListener(map, "click", function(overlay, point) {
+		  if(overlay != null) {
+		    return;
+		  }
+		  if(map.getZoom() < 15) {
+		    map.setCenter(point);
+		    map.zoomIn();
+		  }
+		  else {
+		    $('spot_latitude').value = point.lat();
+		    $('spot_longitude').value = point.lng();
+		  }
+        });
+		if ($('geocoding_key').value.length > 0) {
+		  geocode($('geocoding_key').value);
+		}
+      }
+    }
+  function mapChanged() {
+    var l = map.getCenter().lat();
+	var g = map.getCenter().lng();
+	var z = map.getZoom();
+	if (l != centerLat || g != centerLng || z != zoom) {
+	  centerLat = l;
+	  centerLng = g;
+	  zoom = z;
+	  return true
+	}
+    return false;
+  }
+
+
+  function geocode(address) {
+  /*
+    geocoder.getLatLng(
+      address,
+      function(point) {
+        if (!point) {
+          alert(address + " not found");
+        } else {
+          map.setCenter(point, 13);
+          var marker = new GMarker(point);
+          map.addOverlay(marker);
+          marker.openInfoWindowHtml(address);
+        }
+      }
+    );
+	*/
+	geocoder.getLocations(
+	  address,
+	  function(response) {
+        if (!response || response.Status.code != 200) {
+          alert("「" + address + "」は見つかりません。");
+       } else {
+         place = response.Placemark[0];
+		 
+		 mark(place.Point.coordinates[1],
+                      place.Point.coordinates[0],
+						place.address);
+		 
+         var content = '';
+         if(response.Placemark.length > 1) {
+		   content = '<h3>「' + $('geocoding_key').value + '」の検索結果</h3>';
+		   for (var i = 0; i < response.Placemark.length; i++) {
+            place = response.Placemark[i];
+            point = new GLatLng(place.Point.coordinates[1],
+                        place.Point.coordinates[0]);
+            content += '<div class="location"><a href="javascript: mark(' + point.lat() + ', ' + point.lng() + ', \'' + place.address + '\')">' + place.address +  '</a></div>';
+		   }
+		 }
+         $('geocoding_result').innerHTML = content;
+      }	
+	});
+  }
+  
+  function mark(l, g, address) {
+    var point = new GLatLng(l, g);
+    map.setCenter(point, 15);
+    marker = new GMarker(point);
+    map.addOverlay(marker);
+    marker.openInfoWindowHtml(
+          '<a href="javascript:setSpot(' + point.lat() + ', ' + point.lng() + ', \'' + address + '\')">「' + address + '」として選択</a> ' +
+		  '<br />' +
+          '<a href="javascript:setSpot(' + point.lat() + ', ' + point.lng() + ', \'' + $('geocoding_key').value + '\')">「' + $('geocoding_key').value + '」として選択</a> '
+		  );
+  }
+  
+  Event.observe(window, "load", load);
+  Event.observe(window, "unload", GUnload);
+  
+  // Show the world map.
+  function showWorldMap() {
+    $('geocoding_key').value = '';
+	$('geocoding_result').innerHTML = '';
+    map.clearOverlays();
+    map.setCenter(new GLatLng(34, 154), 1)
+  }
+  
+  // Set spot data.
+  function setSpot(l, g, name) {
+    $('spot_latitude').value = l;
+	$('spot_longitude').value = g;
+	$('spot_name').value = name;
+  }
+<% end -%>
+
+<%# periodically_call_remote :url => save_new_map_in_session_spots_path, :method => :put, :condition => "mapChanged()", :with => "'lat=' + centerLat + '&lng=' + centerLng + '&zoom=' + zoom", :frequency => 5 %>
+
+<h1>場所の登録</h1>
+<p>地図をクリックすると緯度・経度が設定されます。その場所でよければ名前を入れて登録してください。</p>
+<p style="color: green"><%= flash[:notice] %></p>
+
+  <div style="float:left; ">
+  <% form_for(@spot) do |f| %>
+  <%= f.error_messages %>
+  <p>
+    <%= f.label :name, '名前' %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :latitude, '緯度' %><br />
+    <%= f.text_field :latitude %>
+  </p>
+  <p>
+    <%= f.label :longitude, '経度' %><br />
+    <%= f.text_field :longitude %>
+  </p>
+  <p>
+    <%= f.submit "Create" %>
+  </p>
+  <% end -%>
+  </div>
+
+  <div style="float:left; margin-left: 1em;">
+  	<% form_tag '#', {:onSubmit => "geocode($('geocoding_key').value); return false;", :method => :get} do -%>
+	  <%= text_field_tag :geocoding_key, '', :size => 40 %> <%= submit_tag '検索' %>
+	  <%= link_to_function '世界地図', 'showWorldMap()'%>
+	<% end -%>
+    <div style="width: 500px; height: 300px; border: 1px solid black; margin-top: 4px;" id="map"></div>
+  </div>
+  
+  <div style="float:left; margin-left: 1em;" id="geocoding_result">
+  </div>
+  
+  <div style="clear:left" />
+
+<%= link_to 'Back', spots_path %>

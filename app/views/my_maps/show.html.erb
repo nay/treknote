@@ -1,0 +1,24 @@
+<div class="blackPaper">
+  <h1>旅の地図「<%= h @map.name %>」の編集</h1>
+  <div class="operation"><%= link_to '公開ページ', map_path %> <%= link_to '戻る', my_maps_path %></div>
+</div>
+<% if flash[:notice] -%>
+  <div id="info" class="greenPaper">
+    <%= flash[:notice] %>
+  </div>
+<% end -%>
+
+<div class="lightPaper hasTopSpace">
+  <div class="operation"><%= link_to '記録を追加する', new_my_visit_path %></div>
+  <div class="paper">
+      <% if @map.visits.empty? -%>
+        <p>この地図にはまだ記録がありません。行ったことのある場所を記録しましょう！</p>
+      <% else -%>
+        <p><%= @map.visits.size %>件の記録があります。</p>
+        <div id="visits_paging">
+          <%= render :partial => 'shared/visits', :locals => {:visits => @visits} %>
+        </div>
+      <% end -%>
+  </div>
+</div>
+</div>

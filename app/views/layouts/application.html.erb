@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title><%= @title %></title>
+    <%= javascript_include_tag :defaults %>
+    <%= yield :head %>
+    <%= stylesheet_link_tag 'application' %>
+    <!--[if IE]><%= stylesheet_link_tag 'application-ie' %><![endif]-->
+    <% if controller.class.stylesheet -%>
+      <% for s in controller.class.stylesheet -%>
+        <% if s.to_s =~ /-ie/ -%>
+          <!--[if IE]><%= stylesheet_link_tag s.to_s %><![endif]-->
+        <% else -%>
+          <%= stylesheet_link_tag s.to_s %>
+        <% end -%>
+      <% end -%>
+    <% end -%>
+  </head>
+  <body>
+  	<div id="page">
+    　<%= render :partial => 'shared/header' %>
+      <%= yield %>
+	  </div>
+    <%= render :partial => 'shared/footer' %>
+  </body>
+</html>

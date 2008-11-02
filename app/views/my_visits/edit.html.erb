@@ -1,0 +1,33 @@
+<%= render :partial => 'edit_base_script' %>
+
+<div class="blackPaper"">
+  <h1><%= visit_short_name(@visit) %>の基本情報の変更</h1>
+  <% if params[:mode] == 'continue' -%>
+    <div class="operation"><%= link_to '戻る', my_map_path %></div>
+    <%= render :partial => 'steps' %>
+  <% else -%>
+    <div class="operation"><%= link_to '戻る', my_visit_path %></div>
+  <% end -%>
+</div>
+
+<div class="lightPaper hasTopSpace">
+  <div id="visitBaseForm" class="paper">
+    <% form_for @spot, :url => my_visit_path(:id => @visit.id, :mode => params[:mode]), :method => :put do |f| %>
+      <%= f.error_messages %>
+      <table class="form">
+        <tr>
+          <th>行った日 :</th>
+          <td><%= date_select :visit, :visited_on, :use_month_numbers => true, :start_year => 1900 %></td>
+        </tr>
+        <tr>
+          <th>場所 :</th>
+          <td><div id="latlngExp"></div><%= f.hidden_field :name %><%= f.hidden_field :latitude %><%= f.hidden_field :longitude %></td>
+        </tr>
+      </table>
+      <p>
+        <%= f.submit "変更する" %>  <%= link_to 'キャンセル', my_map_path(@map) %>
+      </p>
+    <% end -%>
+  </div>
+
+<%= render :partial => 'edit_base' %>

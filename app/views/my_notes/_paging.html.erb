@@ -1,0 +1,17 @@
+<% # notes -%>
+<div class="noteBoard">
+<% if notes.total_entries == 0 -%>
+  <p>ノートは一つも登録されていません。</p>
+<% else -%>
+  <p><%= notes.total_entries %>件のノートがあります。</p>
+  <%= will_paginate(notes) %>
+  <% for note in notes -%>
+    <div class="note">
+      <% unless note.subject.blank? -%>
+        <h3><%= h note.subject %></h3>
+      <% end -%>
+      <%= simple_format(h(note.body)) %>
+    </div>
+  <% end -%>
+<% end -%>
+</div>

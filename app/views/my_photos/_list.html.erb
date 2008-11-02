@@ -1,0 +1,17 @@
+<% # ローカル変数 photos を渡されることを期待する。-%>
+<div class="photoBoard">
+    <% if photos.total_entries == 0 -%>
+      <p>写真は登録されていません。</p>
+    <% else -%>
+      <p><%= photos.total_entries %>枚の写真が保存されています。</p>
+      <%= will_paginate(photos, :next_label => '次', :prev_label => '前', :renderer => MyPhotosController::LinkRenderer) %>
+      <% for p in photos -%>
+        <div class="imageThumbnail" style="float:left;">
+        <%= my_photo_img_tag p, 160, 160 %>
+        <div class="operation"><%= link_to '削除', my_photo_path(:id => p.id), :method => :delete,
+						  :confirm=> "この写真を削除します。よろしいですか？" %></div>
+        </div>
+      <% end -%>
+      <div style="clear: left;"></div>
+    <% end -%>
+</div>

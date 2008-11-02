@@ -1,0 +1,66 @@
+#main {
+  float: left;
+  width: 600px;
+  margin-right: 20px;
+}
+#main h1 {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+}
+#main .operation {
+  font-size: 90%;
+  text-align: right;
+}
+#summary p {
+  text-align: right;
+}
+#summary {
+  margin-bottom: 20px;
+}
+#yearsIndex {
+  width: 560px;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#yearsIndex .item {
+  float: left;
+  width: 48px;
+  padding: 4px;
+}
+#search {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+#side {
+  float: left;
+}
+#visits {
+  width: 200px;
+}
+#visits h2 {
+  font-size: 110%;
+}
+#visits h3 {
+  margin-top: 20px;
+  font-size: 100%;
+}
+.visitSummary .date {
+  text-align: right;
+  font-size: 90%;
+  font-weight: bold;
+}
+#visits .footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.7);
+  font-size: small;
+  text-align: right;
+}
+#profile {
+  width: 200px;
+  margin-bottom: 20px;
+}
+#page {
+  /* 16 + 600 16 + 20 + 16 + 200 + 16 */
+  width: 884px;
+  margin: 0 auto;
+}

@@ -1,0 +1,30 @@
+<% content_for(:head) do -%>
+  <%= render :partial => 'head_for_2_maps' %>
+<% end -%>
+
+<div id="title" class="blackPaper">
+  <h1><%= visit_formal_name(@visit) %></h1>
+  <div class="operation"><%= link_to "旅の地図「#{@map.name}」", map_path %></div>
+  <% if @target_user == current_user -%>
+  <div class="operation"><%= link_to '編集', my_visit_path %></div>
+  <% end -%>
+</div>
+
+<div id="summary" class="blackPaper">
+  <div class="spotName"><%= h(@visit.spot.name) %></div>
+  <div id="map1" style="width: 200px; height: 200px; overflow: hidden;" class="map"></div>
+  <div id="map2" style="width: 200px; height: 200px; overflow: hidden;" class="map"></div>
+</div>
+<div id="notes">
+  <div class="paper">
+     <%= render :partial => 'note', :collection => @visit.notes %>
+     <% if @visit.notes.empty? -%>
+     <p>ノートは登録されていません。</p>
+     <% end -%>
+  </div>
+</div>
+<div id="photos" class="blackPaper">
+  <%= render :partial => 'photos' %>
+</div>
+<div style="clear:left;">
+</div>

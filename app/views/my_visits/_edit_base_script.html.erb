@@ -1,0 +1,185 @@
+<% javascript_tag do -%>
+  function load() {
+    // create map
+    if (GBrowserIsCompatible()) {
+      map = new GMap2(document.getElementById("map"));
+      map.setCenter(new GLatLng(<%= @g_map.lat %>, <%= @g_map.lng %>), <%= @g_map.zoom%>);
+      map.addControl(new GLargeMapControl());
+
+      GEvent.addListener(map, "click", function(overlay, point) {
+        if(overlay != null) {
+          return;
+        }
+		    if(map.getZoom() < 15) {
+		      map.setCenter(point);
+		      map.zoomIn();
+		    }
+		    else {
+          mark(point);
+		    }
+      });
+		  if ($('geocoding_key').value.length == 0 && $('spot_latitude').value.length > 0 && $('spot_longitude').value.length > 0) {
+        $('geocoding_key').value = $('spot_name').value;
+      }
+		  if ($('geocoding_key').value.length > 0) {
+		    geocode($('geocoding_key').value);
+      }
+    }
+    refreshPlaceExp();
+  }
+  
+  // 場所の選択状態表示を更新する
+  function refreshPlaceExp() {
+    if ( $('spot_name').value != '' && $('spot_latitude').value != '' && $('spot_longitude').value != '' ) {
+      $('latlngExp').innerHTML = $('spot_name').value + "（緯度 : " + cutZero($('spot_latitude').value) + " 経度 : " + cutZero($('spot_longitude').value) + "）";
+    } else {
+      $('latlngExp').innerHTML = "下の地図から場所を選択してください";
+    }
+  }
+  
+  function mapChanged() {
+    var l = map.getCenter().lat();
+	var g = map.getCenter().lng();
+	var z = map.getZoom();
+	if (l != centerLat || g != centerLng || z != zoom) {
+	  centerLat = l;
+	  centerLng = g;
+	  zoom = z;
+	  return true
+	}
+    return false;
+  }
+
+
+  function geocode(address) {
+    placeCandidatesKey = address;
+	  geocoder.getLocations(
+	    address,
+	    function(response) {
+        placeCandidates = new Array();
+        if (response && response.Status.code == 200) {
+          for (var i = 0; i < response.Placemark.length; i++) {
+            place = response.Placemark[i];
+            placeCandidates.push( {
+              name: place.address,
+              latitude: place.Point.coordinates[1],
+              longitude: place.Point.coordinates[0],
+              visits_count: 0
+            } );
+          }
+        }
+
+        // Get spots from the application and merge data.
+        <%= remote_function :url => spots_path(:format => :json), :method => :get,
+				    :with => "'keyword=' + encodeURIComponent($('geocoding_key').value)",
+						:success => "placeCandidates = placeCandidates.concat(eval( '(' + request.responseText + ')' )); refreshGeocodingResult();"
+	      %>;
+    });
+  }
+  
+  // 場所吹き出しを更新し、場所候補欄を表示する
+  function refreshGeocodingResult() {
+    if (placeCandidates.length == 0) {
+      map.clearOverlays();
+      $('geocoding_result').innerHTML = '';
+      alert("「" + placeCandidatesKey + "」は見つかりません。");
+
+    } else {
+      // 候補から重複を排除し、利用されている順にソートする
+      var toBeDeleted = new Array();
+      for (var i = 0; i < placeCandidates.length; i++) {
+        var place = placeCandidates[i];
+        for (var j = 0; j < placeCandidates.length; j++) {
+          if (i == j) {
+            continue;
+          }
+          var target = placeCandidates[j];
+          if (place.name == target.name && place.latitude == target.latitude && place.longitude == target.longitude) {
+            toBeDeleted.push(place.visits_count > target.visits_count ? target : place);
+          }
+        }
+      }
+      var newCandidates = new Array();
+      for (var i = 0; i < placeCandidates.length; i++) {
+        if (toBeDeleted.indexOf(placeCandidates[i]) == -1) {
+          newCandidates.push(placeCandidates[i]);
+        }
+      }
+      placeCandidates = newCandidates.sort(function(a, b) {
+        return (b.visits_count - a.visits_count);
+      });
+      // 吹き出しを表示
+      var firstPlace = placeCandidates[0];
+      mark(new GLatLng(firstPlace.latitude, firstPlace.longitude), firstPlace.name);
+      
+      // 候補欄を表示
+      var content = '';
+      if (placeCandidates.length > 1) {
+        content = '<h3>「' + placeCandidatesKey + '」の検索結果</h3>';
+        for (var i = 0; i < placeCandidates.length; i++) {
+          var place = placeCandidates[i];
+          content += '<div class="location"><a href="javascript: mark(new GLatLng(' + place.latitude + ', ' + place.longitude + '), \'' + place.name + '\')">' + place.name +  '</a></div>';
+        }
+      }
+     $('geocoding_result').innerHTML = content;
+    }
+  }
+  
+  // 旗を立てて吹き出しを出す。
+  function mark(latLng, placeName, adjusted, originalName) {
+    // prepare placeNames
+    var placeNames = new Array();
+    if (placeName != undefined && placeName != '') {
+      if (originalName == undefined || originalName != placeName) {
+        placeNames.push(placeName);
+      }
+      if ($('geocoding_key').value != '' && placeName != $('geocoding_key').value && (originalName == undefined || originalName != $('geocoding_key').value)) {
+        placeNames.push($('geocoding_key').value);
+      }
+    }
+
+    // prepare windowHtml
+    var windowHtml = '';
+    if (adjusted != undefined && adjusted == true) {
+      windowHtml += '<div>1km圏内に似た場所があったため自動的に位置を修正しました。</div>';
+    }
+    for(var i = 0; i < placeNames.length; i++) {
+      windowHtml +=  '<div><a href="javascript:setSpot(new GLatLng(' + latLng.lat() + ', ' + latLng.lng() + '), \'' + placeNames[i] + '\')">「' + placeNames[i] + '」として選択</a></div> ' ;
+    }
+    if (originalName == undefined) {
+      originalName = '';
+    }
+    windowHtml += '<div><input type="text" name="original_name" size="16" id="original_name" value="' + originalName + '"></input>として<button onClick="if($(\'original_name\').value != \'\') {selectFreePlace(new GLatLng(' + latLng.lat() + ', ' + latLng.lng() + '), $(\'original_name\').value);}">登録</button></div>';
+  
+    map.clearOverlays();
+    map.setCenter(latLng, map.getZoom()<15 ? 15 : map.getZoom());
+    marker = new GMarker(latLng);
+    map.addOverlay(marker);
+    marker.openInfoWindowHtml(windowHtml);
+ }
+  
+  Event.observe(window, "load", load);
+  Event.observe(window, "unload", GUnload);
+  
+  // Show the world map.
+  function showWorldMap() {
+    $('geocoding_key').value = '';
+	$('geocoding_result').innerHTML = '';
+    map.clearOverlays();
+    map.setCenter(new GLatLng(34, 154), 1)
+  }
+  
+  // Set spot data.
+  function setSpot(latLng, name) {
+    $('spot_latitude').value = latLng.lat();
+    $('spot_longitude').value = latLng.lng();
+    $('spot_name').value = name;
+    refreshPlaceExp();
+  }
+
+  // 自由に地点を指定した場合の処理 
+  function selectFreePlace(targetLatLng, name) {
+    setSpot(targetLatLng, name);
+  }
+  
+<% end -%>

@@ -1,0 +1,243 @@
+/* Structures */
+body, p, div, form, table, h1, h2, h3, h4 {
+    margin: 0px;
+    padding: 0px;
+}
+body {
+  background: #e0e0ff url("/images/treknote_bg2.jpg") no-repeat fixed 0 0;
+}
+input, textarea {
+  font-size: 100%;
+  font-family: sans-serif;
+  font-weight: normal;
+  width: 280px;
+}
+textarea {
+  padding: 2px;
+}
+.leftMain #main {
+	float: left;
+	width: 70%;
+}
+.leftMain #side {
+	float: left;
+	width: 25%;
+}
+h1 {
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-bottom: 4px;
+}
+p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+table.form tr  {
+  height: 2em;
+}
+table.form td, table.form th  {
+  font-size: 120%;
+}
+table.form th {
+  text-align: right;
+}
+h1 {
+  font-size: 150%;
+}
+
+/* Colors & Graphics */
+.error {
+	color: red;
+}
+/* Specials */
+#maps {
+  margin-top: 1em;
+  border: 2px solid #e0e0ff;
+  color: #008000;
+/*  border: 2px solid #e0e0ff; */
+}
+.map {
+  border: 1px solid black;
+  margin: 4px;
+  overflow: hidden;
+  color: #000000;
+}
+.map a, #map a {
+  color: rgb(0, 80, 120);
+}
+.currentTab {
+  background-color: lightpink;
+}
+.tab {
+  background-color: #e0e0ff;
+}
+.visitBase {
+  margin: 1em;
+  border: 2px solid #e0e0ff;
+  text-align: center;
+}
+.visitBase .spotName {
+  font-size: 150%;
+  font-weight: bold;
+}
+.visitBase .visitedOn {
+  font-size: 120%;
+  font-weight: bold;
+}
+p.guide {
+  text-align: center;
+}
+.photoBoard {
+  padding: 4px;
+  text-align: center;
+}
+.imageThumbnail {
+  margin: 4px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.imageThumbnail img.fromFile {
+  border: 1px solid #303030;
+}
+.imageThumbnail img.fromFlickr {
+  border: 1px solid #0063DC;
+}
+.tabs {
+  
+}
+.tab, .currentTab {
+  float: right;
+  padding: 4px;
+  margin-left: 4px;
+}
+.tabWindow {
+  border: 2px solid lightpink;
+  padding: 1em;
+}
+.deleteButton {
+  font-size: small;
+}
+.noteForm input {
+  font-weight: normal;
+  font-family: sans-serif;  
+}
+.noteForm text_area {
+  font-weight: normal;
+  font-family: sans-serif;  
+}
+.noteBoard {
+  padding: 1em;
+}
+.note {
+  padding: 8px;
+  text-align: left;
+  background-color: rgb(256, 256, 256);
+  color: #000000;
+  margin: 8px;
+}
+.paper {
+  background-color: rgba(255, 255, 255, 0.7);
+  color:  rgba(0, 0, 0, 0.7);
+  padding: 16px;
+}
+.lightPaper {
+  background-color: rgba(255, 255, 255, 0.4);
+  color:  rgba(0, 0, 0, 0.7);
+  padding: 16px;
+}
+.paper a, .lightPaper a {
+  color: rgba(0, 80, 120, 0.7);
+}
+.paper .current, .blackPaper .current {
+  color: rgba(255, 128, 128, 0.7);
+}
+.greenPaper {
+  background-color: rgba(200, 255, 230, 0.7);
+  color: rgba(0, 0, 0, 0.7);
+}
+.blackPaper {
+  background-color: rgba(0, 0, 0, 0.7);
+  color : rgba(255, 255, 255, 0.7);
+  padding: 16px;
+}
+.blackPaper a, .navigation a {
+  color: rgba(127, 255, 191, 0.7);
+}
+.blackPaper h1 {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+}
+.navigation {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+}
+#myVisitSummary {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 1em;
+  margin-bottom: 1em;
+  
+}
+#myVisitInfo {
+}
+#myVisitPhotoWindow {
+  margin-right: 1em;
+}
+.spotName {
+  font-weight: bold;
+  font-size: 120%;
+}
+
+/* Maps */
+.trekMap {
+  width: 500px;
+  height: 300px;
+  margin: 0 auto;
+}
+
+div.hasTopSpace {
+  margin-top: 20px;
+}
+div.hasLeftSpace {
+  margin-left: 20px;
+}
+.number {
+  text-align: right;
+}
+.operation {
+  font-size: 90%;
+  text-align: right;
+}
+#info {
+  padding: 4px;
+}
+#footer {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: small;
+  margin-top: 20px;
+  text-align: right;
+}
+.campaign {
+  color:rgba(255, 80, 80, 0.8);
+}
+#header {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+  text-align: right;
+}
+#header a {
+  color: rgba(127, 255, 191, 0.7);
+}
+#header img {
+  border: 0;
+}
+#profile {
+  text-align: center;
+}
+#profile img {
+  border: 1px solid #FFFFFF;
+}
+input.shortButton {
+  width: 80px;
+}

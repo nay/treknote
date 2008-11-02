@@ -1,0 +1,14 @@
+<div id="title" class="blackPaper">
+  <h1><%= @title %></h1>
+  <div class="operation"><%= link_to '記事へ', notes_path %></div>
+  <% if @target_user == current_user -%>
+  <div class="operation"><%= link_to '写真を編集', edit_photos_my_visit_path %></div>
+  <% end -%>
+</div>
+<div id="album" class="hasTopSpace blackPaper">
+  <p>全部で<%= @visit.photos.size %>枚の写真が登録されています。</p>
+  <% for p in @visit.photos -%>
+    <div class='imageThumbnail' style="float:left;"><%= photo_img_tag p, 75, 75 %></div>
+  <% end -%>
+  <div style="clear:left;"></div>
+</div>

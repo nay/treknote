@@ -1,0 +1,41 @@
+<div class="blackPaper">
+  <h1><%= h current_user.login %>さんの TrekNote</h1>
+</div>
+<%= render :partial => 'shared/notice' %>
+
+<div id="main">
+  <div class="lightPaper hasTopSpace">
+  <h2>旅の地図</h2>
+  <div class="operation"><%= link_to '新しい旅の地図を作成', new_my_map_path %></div>
+  <div class="paper">
+  <% if @maps.empty? -%>
+    <p>旅の地図は１つも登録されていません。</p>
+  <% else -%>
+    <p style="text-align: center;"><%= @maps.total_entries %>件の旅の地図が登録されています。</p>
+    <%= will_paginate @maps %>
+    <table id="mapList">
+      <tr>
+        <th>名前</th>
+        <th>説明</th>
+        <th  style="white-space: nowrap;">記録数</th>
+        <th></th>
+        <th></th>
+      </tr>
+      <% for m in @maps -%>
+        <tr>
+          <td><%= link_to h(m.name), my_map_path(m) %></td>
+          <td><%= h m.description %></td>
+          <td class="number"  style="white-space: nowrap;"><%= m.visits.size %>件</td>
+          <td style="white-space: nowrap;"><%= link_to '変更', edit_my_map_path(:id => m.id) %></td>
+          <td style="white-space: nowrap;"><%= link_to '削除', my_map_path(:id => m.id), {:method => :delete, :confirm => "旅の地図「#{h m.name}」を削除します。この地図の記録（ノート、写真など）がすべて消えますが、よろしいですか？"} %></td>
+        </tr>
+      <% end -%>
+    </table>
+  <% end -%>
+  </div>
+  </div>
+</div>
+<div id="side" class="hasTopSpace hasLeftSpace">
+  <%= render :partial => 'shared/profile', :locals => {:user => current_user} %>
+</div>
+<div style="clear: left;"></div>

@@ -1,0 +1,36 @@
+<% content_for(:head) do -%>
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+  <% javascript_tag do -%>
+    var map = null;
+	  var centerLat = <%= @g_map.lat || 'null' %>;
+	  var centerLng = <%= @g_map.lng || 'null' %>;
+	  var zoom = <%= @g_map.zoom || 'null' %>;
+    var geocoder = new GClientGeocoder();
+    var placeCandidatesKey = '';
+    var placeCandidates = new Array();
+	<% end -%>
+<% end -%>
+
+
+
+  <div id="searchArea" class="paper" style="margin-top: 16px;">
+    <p style="color: green"><%= flash[:notice] %></p>
+    <% form_tag '#', {:onSubmit => "if($('geocoding_key').value.length == 0) {alert('住所や名前を指定してください。'); return false; } geocode($('geocoding_key').value); return false;", :method => :get} do -%>
+      <label for="geocoding_key">住所や名前：</label><%= text_field_tag :geocoding_key, '', :size => 40, :style => "width: 400px;" %> <%= submit_tag '検索', :class => 'shortButton' %>
+      <span class="operation"><%= link_to_function '世界地図', 'showWorldMap()'%></span>
+     <% end -%>
+    <div id="mapHolder" class="hasTopSpace">
+      <div style="width: 500px; height: 300px;" id="map" class="map"></div>
+    </div>
+  
+    <div id="geocoding_result" class="hasLeftSpace hasTopSpace">
+    </div>
+  
+    <div style="clear:left" ></div>
+    <p>地図をクリックすると緯度・経度が設定されます。その場所でよければ名前を入れて登録してください。</p>
+
+    </div>
+  </div>
+</div>
+

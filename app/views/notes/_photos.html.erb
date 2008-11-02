@@ -1,0 +1,13 @@
+  <% count = 0 %>
+  <% if @visit.photos.empty? -%>
+  <p>写真は<br />登録されていません。</p>
+  <% end -%>
+  <% for p in @visit.photos -%>
+    <div class="imageThumbnail"><%= photo_img_tag p, 200, 200 %></div>
+    <% count += 1 %>
+    <% break if count == 3%>
+  <% end -%>
+  <% if count < @visit.photos.size -%>
+  <p>全部で<%= @visit.photos.size %>枚の写真が<br />登録されています。</p>
+  <% end -%>
+  <div class="operation"><%= link_to 'アルバムへ', photos_path %></div>

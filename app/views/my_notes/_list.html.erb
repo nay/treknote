@@ -1,0 +1,20 @@
+<% # notes, current_note %>
+<% if notes.total_entries == 0 -%>
+  <p>ノートは一つも登録されていません。</p>
+<% else -%>
+  <p><%= notes.total_entries %>件のノートがあります。</p>
+  <ul>
+  <% for note in notes -%>
+    <% classAttr = note == target_note ?  'class = "current"' : '' %>
+    <li <%= classAttr %>>
+      <% if note == target_note -%>
+        <%= h note.subject_or_head %> <span>(<%= format_datetime note.updated_at %>)</span>
+      <% else -%>
+        <%= link_to_remote note.subject_or_head, :url => edit_my_note_path(:id => note.id), :method => :get %> <span>(<%= format_datetime note.updated_at %>)</span>
+      <% end -%>
+      <span class="operation"><%= link_to '削除', my_note_path(:id => note.id), :method => :delete, :confirm => "ノート「#{h(note.subject_or_head)}」を削除します。よろしいですか？"%></span>
+    </li>
+  <% end -%>
+  </ul>
+  <p><%= link_to_remote  '新しいノートを書く', :url => new_my_note_path, :update => 'noteForm', :method => :get %></p>
+<% end -%>

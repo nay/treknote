@@ -1,0 +1,13 @@
+  <div id="photoForm" class="paper hasLeftSpace hasTopSpace">
+    <div class="tabs">
+      <div class="currentTab">画像ファイルを登録</div>
+      <div class="tab"><%= link_to_remote "Flickrから選択", :update => 'photo_selector', :method => :get, :url => edit_photos_from_flickr_my_visit_path(:id => @visit.id), :after => 'searchFlickr(1)'%></div>
+      <div style="clear:right;"></div>
+    </div>
+    <div class="tabWindow">
+      <p>お手持ちの画像ファイルをアップロードするには、選択ボタンを押してファイルを選んでください。<br />左側に写真が追加されます。</p>
+    <% form_tag my_photos_path, :method => :post, :multipart => true, :target => 'upload_target', :id => 'file_form' do -%>
+      <%= file_field_tag :photo, :onChange => "if($('photo').value != '') {$('file_form').submit(); $('photo').value = '';}", :style => "width: 320px;" %>
+    <% end -%>
+    </div>
+  </div>

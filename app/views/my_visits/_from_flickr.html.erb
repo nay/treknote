@@ -1,0 +1,14 @@
+<div id="photoForm" class="paper hasLeftSpace hasTopSpace">
+    <div class="tabs">
+      <div class="tab"><%= link_to_remote "画像ファイルを登録", :update => 'photo_selector', :method => :get, :url => edit_photos_from_file_my_visit_path(:id => @visit.id) %></div>
+      <div class="currentTab">Flickrから選択</div>
+      <div style="clear:right;"></div>
+    </div>
+    <div class="tabWindow" style="text-align:center;">
+    <% if current_user.flickr_id.blank? -%>
+      <%= link_to 'プロフィール編集', edit_user_path(:id => current_user.id)  %>でFlickr IDを登録すればFlickrの写真を登録できます。
+    <% else -%>
+      <div id="viewFlickr"><%= image_tag 'loading1.gif' %></div>
+    <% end -%>
+    </div>
+</div>

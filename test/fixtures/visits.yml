@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  user_id: 1
+  spot_id: 1
+  trek_map_id: 1
+  visited_on: 2008-09-23
+
+two:
+  user_id: 1
+  spot_id: 1
+  trek_map_id: 1
+  visited_on: 2008-09-23

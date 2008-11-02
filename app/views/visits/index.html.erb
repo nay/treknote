@@ -1,0 +1,40 @@
+<div id="title" class="blackPaper">
+  <h1><%= @title %></h1>
+  <div class="operation"><%= link_to '戻る', map_path %></div>
+</div>
+
+<div class="paper hasTopSpace" id="visits">
+  <% if @visits.empty? -%>
+    <p><%= @what %>はありません。</p>
+  <% else -%>
+    <p><%= @what %>は<%= @visits.total_entries %>件あります。</p>
+    <%= will_paginate %>
+    <table>
+      <tr>
+        <th>記録</th>
+        <th colspan="2">写真・ノート</td>
+        <th>最終更新</th>
+      </tr>
+    <% for visit in @visits -%>
+      <tr style="height: 50px;">
+        <td><%= link_to(visit_short_name(visit), notes_path(:visit_id => visit.id)) %></td>
+        <td>
+          <% unless visit.photos.empty? -%>
+            <div class="imageThumbnail"><%= photo_img_tag visit.photos.first, 40, 40, {}, :visit_id => visit.id %></div>
+          <% end -%>
+        </td>
+        <td>
+          <% unless visit.notes.empty? -%>
+            <% 
+								note_headline = visit.notes.first.subject_or_head
+								note_headline += " ほか#{visit.notes.size - 1}件" if visit.notes.size > 1
+							 %>
+            <%= note_headline %>
+          <% end -%>
+        </td>
+        <td style="font-size: small;"><%= format_datetime visit.updated_at %></td>
+      </tr>
+    <% end -%>
+    </table>
+  <% end -%>
+</div>

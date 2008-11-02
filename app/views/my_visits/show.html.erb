@@ -1,0 +1,85 @@
+<% content_for(:head) do -%>
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+  <% javascript_tag do -%>
+    function onLoad() {
+      // create maps
+      if (GBrowserIsCompatible()) {
+        var map1 = new GMap2(document.getElementById("map1"));
+        map1.disableDragging();
+        var center = new GLatLng(<%= @visit.spot.latitude %>, <%= @visit.spot.longitude %>);
+        map1.setCenter(center, 5);
+        var marker = new GMarker(center);
+        map1.addOverlay(marker);
+        
+        var map2 = new GMap2(document.getElementById("map2"));
+        map2.disableDragging();
+        map2.setCenter(center, 13);
+        var marker = new GMarker(center);
+        map2.addOverlay(marker);
+      }
+    }
+    Event.observe(window, "load", onLoad);
+    Event.observe(window, "unload", GUnload);
+
+	<% end -%>
+<% end -%>
+
+<%= render :partial => 'shared/my_trek_navigation' %>
+<div class="blackPaper">
+  <div class="operation"><%= link_to '新しい記録を登録', new_my_visit_path %></div>
+  <h1><%= visit_formal_name @visit %></h1>
+  <div class="operation"><%= link_to '場所・日にちを変更', edit_my_visit_path %> <%= link_to '削除', my_visit_path, :method => :delete, :confirm => "#{visit_short_name(@visit)}の記録を削除します。写真、ノートも削除されます。よろしいですか？"%> <%= link_to '公開ページ', notes_path %></div>
+</div>
+<%= render :partial => 'shared/notice' %>
+
+<div id="myVisitSummary">
+  <div id="myVisitInfo">
+    <div class="mapBoard" style="float:right;">
+      <div id="map2" style="width: 240px; height: 200px;" class="map"></div>
+    </div>
+    <div class="mapBoard" style="float:right;">
+      <div id="map1" style="width: 240px; height: 200px;" class="map"></div>
+    </div>
+    <div>
+
+      <% if !@prev_visit_to_the_spot && !@next_visit_to_the_spot -%>
+        <p>この場所に行ったのはこの１回だけです。</p>
+      <% else -%>
+        <% if @prev_visit_to_the_spot -%>
+          <p>この前に行ったのは <%= link_to format_date_detailed(@prev_visit_to_the_spot.visited_on), my_visit_path(:id => @prev_visit_to_the_spot.id) %> です</p>
+        <% end -%>
+        <% if @next_visit_to_the_spot -%>
+          <p>この後に行ったのは <%= link_to format_date_detailed(@next_visit_to_the_spot.visited_on), my_visit_path(:id => @next_visit_to_the_spot.id) %> です</p>
+        <% end -%>
+      <% end -%>
+
+      <% if !@prev_visit_then && !@next_visit_then -%>
+        <p>この時期のほかの記録はありません。</p>
+      <% else -%>
+        <% if @prev_visit_then -%>
+          <p>この直前の記録は <%= link_to "#{h(@prev_visit_then.spot.name)} (#{format_date_without_year(@prev_visit_then.visited_on)})", my_visit_path(:id => @prev_visit_then.id) %> です</p>
+        <% end -%>
+        <% if @next_visit_then -%>
+          <p>この直後の記録は <%= link_to "#{h(@next_visit_then.spot.name)} (#{format_date_without_year(@next_visit_then.visited_on)})", my_visit_path(:id => @next_visit_then.id) %> です</p>
+        <% end -%>
+      <% end -%>
+      
+    </div>
+  </div>
+  <div style="clear:right;"></div>
+</div>
+
+<div>
+  <div style="float:left; width: 48%; padding: 4px; text-align: center;" class="blackPaper" id="myVisitPhotoWindow">
+    <div style="text-align: right;"><%= link_to '写真を編集する', edit_photos_my_visit_path(:id => @visit.id) %></div>
+    <div id="photos" style="z-index: 2;">
+      <%= render :partial => 'my_photos/list', :locals => {:photos => @visit.photos.paginate(:page => 1, :per_page => 6)} %>
+    </div>
+  </div>
+  <div style="float:left; width: 48%; padding: 4px; text-align: center;" id="myVisitNoteWindow" class="blackPaper">
+    <div style="text-align: right;"><%= link_to 'ノートを編集する', edit_notes_my_visit_path(:id => @visit.id) %></div>
+    <%= render :partial => 'my_notes/paging', :locals => {:notes => @visit.notes.paginate(:page => params[:page], :per_page => 3)}%>
+  </div>
+  <div style="clear:left;"></div>
+</div>

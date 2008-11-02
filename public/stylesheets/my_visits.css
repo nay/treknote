@@ -1,0 +1,79 @@
+#page {
+  width: 800px;
+  margin: 0 auto;
+}
+.navigation a {
+  text-decoration: none;
+  padding: 4px;
+}
+.steps {
+  width: 760px;
+  margin: 0 auto;
+}
+.step, .arow {
+  float:left;
+  text-align: center;
+}
+.step {
+  width: 240px;
+}
+.arow {
+  width: 20px;
+}
+#visitBaseForm {
+  text-align: center;
+}
+#visitBaseForm table {
+  width: 580px;
+  margin: 0 auto;
+}
+#visitBaseForm th {
+  text-align: right;
+  white-space: nowrap;
+}
+#visitBaseForm td {
+  text-align: left;
+}
+#mapAndSearch {
+  float:left;
+}
+#geocoding_result {
+  float: left;
+  width: 200px;
+}
+#searchArea #mapHolder {
+  float: left;
+}
+#photos {
+  float: left;
+  width: 358px;
+}
+#photoForm {
+  float: left;
+  width: 358px;
+}
+#photoForm .selected_photo {
+  display: inline;
+  position: static;
+  width: auto;
+}
+#photoForm img {
+  display: block;
+  width: 75px;
+  position: static;
+//  border: 1px solid #000000;
+  margin: 1px;
+  float: left;
+  cursor: pointer;
+}
+#myVisitSummary a {
+    color: rgba(127, 255, 191, 0.7);
+}
+#notes {
+  float: left;
+  width: 358px;
+}
+#noteForm {
+  float: left;
+  width: 358px;
+}

@@ -1,0 +1,19 @@
+<% unless visits.empty? -%>
+  <% navi = will_paginate visits, :renderer => MyMapsController::LinkRenderer, :next_label => '次', :previous_label => '前', :style => "text-align: center; background-color: #E0E0FF;" -%>
+  <%= navi %>
+  <table>
+    <% year = nil -%>
+    <% for v in visits -%>
+      <tr>
+        <% if year != v.visited_on.year -%>
+        <% year = v.visited_on.year -%>
+        <td rowspan="<%= visits.select{|a| a.visited_on.year == year}.size%>" style="padding-right: 1em; vertical-align: top; white-space: nowrap;"><%= format_year v.visited_on %></td>
+        <% end -%>
+        <td style="padding-right: 1em;  white-space: nowrap;"><%= format_date_without_year v.visited_on %></td>
+        <td><%= link_to(h(v.spot.name), my_visit_path(:id => v)) %></td>
+        <td><%= link_to '削除', my_visit_path(:id => v), :method => :delete, :confirm => "#{visit_short_name v}を削除します。よろしいですか？"%></td>
+      </tr>
+    <% end -%>
+  </table>
+  <%= navi %>
+<% end -%>

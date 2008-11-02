@@ -1,0 +1,21 @@
+<% content_for(:head) do -%>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+<% end -%>
+
+<% javascript_tag do -%>
+    function load() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("map"));
+        map.setCenter(new GLatLng(22, 150), 2);
+        GEvent.addListener(map, "click", function(overlay, point) {
+          alert("You clicked the map.");
+		  alert(point.lat());
+        });
+      }
+    }
+  Event.observe(window, "load", load);
+  Event.observe(window, "unload", GUnload);
+<% end -%>
+aaa
+    <div id="map" style="width: 1000px; height: 500px"></div>

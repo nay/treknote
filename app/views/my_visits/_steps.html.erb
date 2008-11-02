@@ -1,0 +1,27 @@
+  <% step ||= 1 %>
+  <% 
+
+  	step1_class = step == 1 ? 'current step' : 'step'
+  	step2_class = step == 2 ? 'current step' : 'step'
+  	step3_class = step == 3 ? 'current step' : 'step'
+  %>
+  <div class="steps">
+    <% if step == 1 -%>
+      <div class="<%= step1_class %>">1. 行った場所と日にちを記入</div>
+    <% else -%>
+      <div class="<%= step1_class %>">1. <%= link_to '行った場所と日にちを記入', edit_my_visit_path(:mode => 'continue') %></div>
+    <% end -%>
+    <div class="arow">&gt;&gt;</div>
+    <% if step == 2 || @visit.new_record? -%>
+      <div class="<%= step2_class %>">2. 写真を登録</div>
+    <% else -%>
+      <div class="<%= step2_class %>">2. <%= link_to '写真を登録', edit_photos_my_visit_path(:mode => 'continue') %></div>
+    <% end -%>
+    <div class="arow">&gt;&gt;</div>
+    <% if step == 3 || @visit.new_record? -%>
+      <div class="<%= step3_class %>">3. ノートを登録</div>
+    <% else -%>
+      <div class="<%= step3_class %>">3. <%= link_to 'ノートを登録', edit_notes_my_visit_path(:mode => 'continue') %></div>
+    <% end -%>
+    <div style="clear: left;"></div>
+  </div>

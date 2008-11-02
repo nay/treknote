@@ -1,0 +1,23 @@
+<% content_for(:head) do -%>
+  <%= render :partial => 'head_for_2_maps' %>
+<% end -%>
+
+<div id="title" class="blackPaper">
+  <h1><%= note_subject_or_default(@note) %> <span style="font-size: 80%;"> - <%= link_to(visit_short_name(@visit), notes_path) %>のノート</span></h1>
+</div>
+
+<div id="summary" class="blackPaper">
+  <div class="spotName"><%= h(@visit.spot.name) %></div>
+  <div id="map1" style="width: 200px; height: 200px; overflow: hidden;" class="map"></div>
+  <div id="map2" style="width: 200px; height: 200px; overflow: hidden;" class="map"></div>
+</div>
+<div id="notes">
+  <div class="paper">
+  <%= render :partial => 'note', :object => @note %>
+  </div>
+</div>
+<div id="photos" class="blackPaper">
+  <%= render :partial => 'photos' %>
+</div>
+<div style="clear:left;">
+</div>

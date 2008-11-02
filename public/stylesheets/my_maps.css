@@ -1,0 +1,22 @@
+#page {
+  /* 300 + 20 + 500 = 820 */
+  width: 820px;
+  margin: 0 auto;
+}
+#trekMaps {
+  width: 320px;
+  float: left;
+  margin-right: 20px;
+}
+#main {
+  width: 588px;
+  float: left;
+  text-align: center;
+}
+#side {
+  width: 210px;
+  float: left;
+}
+#mapList td {
+  padding: 4px;
+}

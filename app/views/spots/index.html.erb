@@ -1,0 +1,24 @@
+<h1>Listing spots</h1>
+
+<table>
+  <tr>
+    <th>Latitude</th>
+    <th>Longitude</th>
+    <th>Name</th>
+  </tr>
+
+<% for spot in @spots %>
+  <tr>
+    <td><%=h spot.latitude %></td>
+    <td><%=h spot.longitude %></td>
+    <td><%=h spot.name %></td>
+    <td><%= link_to 'Show', spot %></td>
+    <td><%= link_to 'Edit', edit_spot_path(spot) %></td>
+    <td><%= link_to 'Destroy', spot, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New spot', new_spot_path %>

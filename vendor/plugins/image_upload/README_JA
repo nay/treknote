@@ -1,0 +1,324 @@
+=image_upload plugin
+image_upload は、スマートな Ajax U/Iで画像をアップロードできる機能を簡単に追加するための Ruby on Rails プラグインです。
+次のような特徴があります。
+
+* アップロードしたいファイルを選択するとすぐに、アップロード結果の画像を画面上で見ることができます。その時点ではまだＤＢには保存されません。
+* image_upload では、画像を１つの独立したモデルとして設計しています。これによって、画像をつけたい親モデルが複数の画像を持つといったことを素直に表現できます。また、画像それ自体にタグをつけたいといった場合などに、画像モデルをそのまま拡張することができます。
+* 多言語化（動機は日本語化ですが）を意識しています。キャプションやメッセージなどは外付けで指定できるので必要に応じて日本語化してください。
+* RMagick がインストールされている環境では、インストール時に指定サイズ範囲内に縮小する機能と、アップロードしてから保存するまでの間に回転ボタンを押して画像を回転加工する機能が使えます。
+
+このプラグインは、Rails 1.2.6, Rails 2.0.2, IE7.0(Windows), IE6.0(Windows), FireFox(Windows, MacOSX), Safari(MaxOSX)　でテストされています。
+
+プラグインの使用例として、<b>image_exmaples</b> アプリケーションがありますので参考にしてください。
+
+== image_examples
+
+以下のコマンドによってチェックアウトすることができます
+
+ svn checkout http://imageupload.rubyforge.org/svn/trunk/image_examples
+
+または
+
+ svn checkout svn://rubyforge.org/var/svn/imageupload/trunk/image_examples
+
+なお、image_examples を動かすには GetText が必要です。
+GetText は以下のようにしてインストールしてください。
+
+ > gem install gettext
+
+= ImageUpload プラグインの使い方
+
+image_upload　プラグインを使うには、以下のような手順が必要です。
+
+* image_upload プラグインをインストールする
+* responds_to_parent プラグインをインストールする
+* acts_as_list プラグインをインストールする
+* <b>image model</b>を generator で作成する
+* 画像をつけたい<b>'親モデル'</b>に 'image_attached' を記述する
+* 親モデルを編集するための<b>コントローラ</b>に必要なコードを追加する
+* 画面に<b>アップロード欄</b>を表示する
+* 付属のヘルパーメソッドをつかって、保存済の画像を表示する（このやり方が必須というわけではありません）
+
+==image_upload プラグインをインストールする
+image_upload プラグインは以下のコマンドでインストールできます。
+
+ > ruby script/plugin install http://imageupload.rubyforge.org/svn/trunk/image_upload/
+
+==responds_to_parent プラグインをインストールする
+image_upload プラグインを使うには、responds_to_parent プラグインが必要です。
+以下のようにしてアプリケーション内にインストールします。
+
+ ruby script/plugin install http://sean.treadway.info/svn/plugins/responds_to_parent/
+
+注意：最近上記のレポジトリから取得できない状況のようです。image_examples アプリケーション内ものをコピーして使うという方法があります。
+
+例）
+ > ruby script/plugin install http://imageupload.rubyforge.org/svn/trunk/image_examples/vendor/plugins/responds_to_parent
+
+== ActsAsList プラグインをインストールする
+
+ > ruby script/plugin install acts_as_list
+
+==画像に対応するActiveRecordモデルクラスの用意
+
+image_upload では、画像をモデルとして扱います。モデルクラスを生成するには、
+
+ ./script/generate image_upload stored_file
+
+を実行します。stored_file の代わりに任意の画像ファイルクラス名を指定できます。
+
+画像イメージクラスには単一テーブル継承を利用することもできます。
+生成した stored_file モデルをそのまま利用せず、画像種類ごとにクラスを作るといった利用方法が考えられます。派生クラスの記述例は以下のようになります。
+
+ class EntryImage < StoredFile
+ end
+
+===画像ファイルの名前をそのまま利用する（わかりにくくしない）
+
+ImageUpload では、オリジナルの画像ファイル名を表示に利用せず、ランダムな名前をつけて表示します。この機能を使わない場合は、generator でモデルを作る際に use_original_name を指定します。
+
+ ./script/generate image_upload stored_file use_original_name
+
+===親モデルとPolymorphicに結びつかないようにする
+
+generator で作られた画像モデルは、Polymorphic 関連で親モデルに紐づけられるようになっています。特定の親モデル専用の画像モデルを作るので Polymorphic である必要がない場合は、generator でモデルを作る際、親モデル名を指定します。例えば article が親なら以下のようにします。
+
+ ./script/generate image_upload stored_file article
+
+より細かい指定が必要なとき（クラス名や外部キーの命名ルールが異なるとき）は、生成されたモデルクラスの belongs_to 指定を書き換えてください。
+
+また、親モデル側で image_attached を使う際に、:polymorphic => false を指定します。
+
+ image_attached :polymorphic => false
+
+===画像ファイルの最終的な格納場所を変えるには
+
+generator で生成された画像モデルクラスの path メソッドを変更、または派生クラスでオーバーライトします。生成時点では以下のように、public/images 以下に モデルクラスの複数名のサブフォルダを切って格納されるようになっています。
+
+  # You can overwrite this.    
+  def path
+    "#{RAILS_ROOT}/public/images/#{self.class.to_s.underscore.pluralize}"
+  end
+
+ここには、public/images 以下でない自由なパスを指定することができます。public/images 以下でないパスに画像を格納すると、画像へのアクセス管理をアプリケーションを通じて行うことができます。
+
+なお、public/images 以下のパスでない場合、以下を指定することが必要ですので注意してください。
+
+* stored_image_tag で url_options を指定する
+* image_upload_field で url を返すブロックを指定する
+
+==画像をつけたいActiveRecordモデルへの拡張
+
+画像をつけたいActiveRecordモデルを決め、image_attached を指定します。
+
+例えば、UserProfile というモデルに画像を１つ関連づける場合のコードは以下のようになります。
+
+  class UserProfile < ActiveRecord::Base
+    image_attached
+  end
+
+image_attached には以下のオプションを渡すことができます。
+
+* :class_name - イメージモデルとの関連づけを行う際の class_name を指定できます。画像モデル名が 'StoredFile' でないときは指定が必要です。
+* :foreign_key - イメージモデルとの関連づけを行う際の外部キーを指定できます。親モデルのクラス名と異なる法則の外部キーを使いたい場合に指定します。
+* :polymorphic - イメージモデルと親モデルをポリモーフィック関連にするかを指定します。デフォルトでは true です。generator で画像モデルを作成するときの指定と一貫性を持たせる必要があります。
+* :size - イメージを最大何個紐づけるか指定します。デフォルトは1です。
+* :name - イメージモデルとの疑似的な関連名を指定します。デフォルトは :image (:sizeが1のとき） または :images (:size が2以上のとき）です。前者は has_one, 後者は has_many となります。モデルの関連についての詳細は後述します。
+* :max_size - {:width => 40 , :height => 40} といったフォーマットで指定します。イメージをアップロードする際、画像サイズがこの指定を超えている場合は、縦横比を保ったまま、指定サイズ以下になるように縮小します。この機能を利用するには RMagick をインストールする必要があります。
+* :types - アップロードを許可するファイル種類を配列で指定します。値としては、:GIF, :PNG, :JPEG, :BMP, :PPM, :PBM, :PGM, :XBM, :TIFF, :XPM, :PSD, :PCX, :SWF, :OTHER が指定できます。（ただしテストしているのは :GIF, :JPEG, :PNG, :OTHER のみです。）デフォルトは [:JPEG, :PNG, :GIF]です。
+* :type_error_message - アップロードされたファイル種類が不正だったときに表示するエラーメッセージを指定します。デフォルトは「Please upload jpg/png/gif image files.」です。
+
+例えば、Entry クラスに画像を最大３つつけるようにし、モデルクラス名が EntryImage である場合は以下のように指定します。
+
+ image_attached :size => 3, :class_name => 'EntryImage'
+
+１つの親モデルに対して複数種類の関連を指定することができます。
+次の例では、User モデルにプロフィール画像と家の写真を関連づけます。
+
+ class User < ActiveRecord::Base
+   image_attached :name => :profile_image, :class_name => 'ProfileImage', :polymorphic => false
+   image_attached :name => :house_image, :class_name => 'HouseImage'
+ end
+
+=== 画像をつけたモデルの画像への関連について
+
+親モデルから画像モデルへは、has_one または　has_many の関連がはられます。
+実際の関連名は、image_attached の :name オプションの先頭に'stored_'をつけたものとなりますが、参照には疑似関連名を使ってください。
+例えば、疑似関連名が :images なら、parent.images でイメージモデルの配列を得られます。:image なら、parent.image でイメージモデルまたは nil が得られます。
+
+一般的には、stored_xxx の関連に関しては画像アップロードプラグインが処理するので、開発者が気にする必要はありません。
+
+==画像をつけたモデルの編集を行うコントローラへの拡張
+
+画像をつけたモデルの編集を行うコントローラに、以下の変更を加えます。
+
+* 1.image_upload を指定
+* 2.モデルをセーブするまえに、set_images_to を使ってモデルに画像の編集情報をセットする
+* 3.モデルのセーブに成功したら、clear_session_images を呼ぶ
+
+例えば UserProfileController の実装例は以下になります。
+
+ class UserProfileController < ApplicationController
+   image_upload 'User', :starts_at => [:new, :edit] # 1
+ 
+   def new
+     @profile = UserProfile.new
+   end
+
+   def edit
+     @profile = UserProfile.find(params[:id])
+   end
+
+   def update
+     @profile = UserProfile.find(params[:id])
+     @profile.attributes = params[:user_profile]
+     set_images_to(@profile)                     # 2
+     if @profile.save
+       clear_session_images                      # 3
+       redirect_to :action => 'index'
+     else
+       render :action => 'edit'
+     end
+   end
+ 
+ end
+
+===image_upload メソッドの詳細
+
+image_upload の最初の引数には、このコントローラでアップロードされる画像をつけるモデルのクラス名を指定します。
+二番目の引数にはオプションを指定します。オプションには、以下を指定できます。なお、通常の利用方法においては、:starts_at を最低１つ指定することになるでしょう。
+
+* :starts_at - 画像アップロードを開始するアクション（登録画面を表示するアクションなど）をSymbolで指定します。配列を使って複数指定することができます。指定されたアクションが開始される際、関連するセッション情報がクリアされます。コントローラ内で自分で適切に clear_session_images を呼び出すことによって同様の動作をさせることができます。
+* :tmp_dir - このコントローラのアップロード処理で作られる一時保存状態の画像を格納するフォルダを指定します。デフォルトは #{RAILS_ROOT}/tmp/images です。指定したフォルダがなければ image_upload プラグインが自動的に作成します。
+
+なお、１つのコントローラでは、image_upload は１回しか呼び出せません。つまり、１つのコントローラでは一種類の親モデルに関するアップロードしか行えません。
+
+===コントローラに自動的に追加されるアクションについて
+
+image_upload を記述すると、コントローラに以下のアクションが自動的に追加されます。自前のフィルターを記述する場合は、これらのアクションにそのフィルターを適用するかどうかを判断する必要があります。
+
+* session_image - セッション上の画像を出力します。
+* upload_session_image - 画像を一時的な場所にアップロードしてセッションで管理できるようにします。
+* rotate_session_image - セッション上の画像を回転させます。
+* delete_session_image - 一時的な場所にアップロードした画像を削除します。
+* delete_stored_image - DB保存済の画像を削除（予約）します。削除は、画像をひもづけたモデルの保存時に実行されます。
+
+注意: session_image はイメージのバイナリを出力します。もしテキストコンテンツ向けに、HTTPレスポンスヘッダを変える after filter などを用意している場合、 このメソッドを Skip 指定するのを忘れないようにしてください。
+
+===アップロードされたファイルの検証をカスタマイズする
+
+組み込みのファイル種類チェック以外のチェックを行いたい場合は、コントローラに、protected で　validate_image(path) を実装します。validate_image では、エラーがあった場合に、@image_errors にエラーメッセージを追加してください。例えば、サイズ制限をする場合の例は以下のようになります。
+
+ protected
+ def validate_image(path)
+   if File.size(path) > 512.kilobytes
+     @image_errors << 'The image file should not be larger than 512KB.'
+   end
+ end
+
+==アップロードフィールドの書き方
+
+アップロードフィールドは以下のように記述します。
+
+  <%= image_upload_field(@profile, :width => 80, :height => 60, :form_id => 'myform') %>
+
+最初の引数には、画像をつけたいオブジェクトを指定します。
+オプションには以下を指定できます。
+
+* :width - アップロード作業中に画像を表示する際の最大横幅。デフォルトは120。
+* :height - アップロード作業中に画像を表示する際の最大高さ。デフォルトは120。
+* :form_id - アップロード欄のあるform の id。デフォルトは 'form'。
+* :delete_caption - 削除ボタンに表示する文字列。デフォルトは 'Delete'。
+* :template_extension - 削除ボタンの後ろに表示したいhtml文字列。文字列中に"%%original_filename%%"があった場合、オリジナルのファイル名に置換されます。
+* :rotate - true を指定すると、一時的にアップロードした画像に対して回転ボタンを表示し、submit前に回転加工できるようにします。この機能を使うには RMagick のインストールが必要です。
+* :rotating_angle - 回転を行う場合、１回の回転命令で何度回転させるかを指定します。デフォルトは90度です。
+* :name - 画像の疑似関連名が複数ある場合（１つのモデルに複数系統の画像をつけている場合）は、その入力欄に対応させたい疑似関連名を指定します。
+
+また、画像をpublic/images 以下に配置しない場合は、DB保存済の画像をアップロード作業中に表示するためのurlを、ブロックで指定する必要があります。
+
+例）
+
+  <%= image_upload_field(@entry) {|f|
+    url_for(:controller => 'entries',
+            :action => 'image',
+            :unique_key => file.unique_key,
+            :ext => file.ext)} %>
+
+アップロードフィールドの記述にあたっては、以下の環境条件を満たす必要があります。
+
+* アップロードフィールドは form タグの中に記述します。
+* form タグの id は 'form' とするか、アップロードフィールド中の:form_id オプションと合わせます。
+* form タグは multipart => true である必要があります。
+* Ajax用のJavaScriptが有効であることが必要です。例）<%= javascript_include_tag :defaults %>
+
+==アップロード後の画像表示の書き方
+
+保存済みの画像の表示を支援するヘルパーメソッド stored_image_tag を用意しています。
+public 以下に保存する場合も、そうでない場合も利用できます。
+
+例）public 以下に保存しない場合
+
+  <%= stored_image_tag image, :action => 'image', :id => entry.id, :unique_key => image.unique_key, :ext => image.ext %>
+
+例）public 以下に保存する場合
+
+  <%= stored_image_tag image %>
+
+stored_image_tagの引数は以下のようになっています。
+
+  def stored_image_tag(image, url_options = {}, html_options = {}, default_image = nil)
+
+* image - 画像モデルオブジェクト
+* url_options - public 以下に保存しない場合は画像を表示するためのURLを生成するためのオプションを指定 (url_for のオプションに同じ）
+* html_options - img タグにつけたいオプション
+* default_image - 指定されていれば、image が nil のとき代替画像を表示します。public/images 以下のパスを指定します。
+
+==public/images 以下でない場所にファイルを格納する場合のファイル表示処理
+
+ImageUploadプラグインを入れると、すべてのController からsend_stored_file メソッドを使うことができるようになります。これを利用して簡単に画像ファイルをHTTPレスポンスとして送り出せます。
+
+  # You can add access controll feature here.
+  def image
+    entry = Entry.find(params[:id])
+    image = entry.images.detect{|i| i.unique_key == params[:unique_key]}
+    send_stored_file(image)
+  end
+
+==一時ファイルの定期的な削除について
+
+画像を一時的に保存するフォルダ内の画像は、アップロード処理をユーザーが途中で放棄すると、削除されないまま残ります。このようなごみは、定期的に削除する必要があります。
+
+==Ajaxを使わないアップロード
+
+generator で生成した画像モデルは、Ajaxを使わないアップロードにも対応しています。
+
+Ajaxを使わないアップロードでこれらのモデルを利用するには、buffer= でアップロードされたバッファを格納してからsaveするようにします。
+
+例えば、viewで以下のように記述し、
+
+ <%= file_field(:message, :attached_file_buffer) %>
+
+Mesasge クラスに以下のように記述します。
+
+  class Message
+    attr_accessor :attached_file_buffer
+    protected 
+    def before_create
+      f = build_attached_file
+      f.buffer = attached_file_buffer
+    end
+  end
+
+==Rails2.0のscaffoldで作成したコントローラで使用する場合について
+
+routes.rbに追加されたmap.resourcesに下記のようにcollectionを追記してください。
+
+ map.resources :users, :collection => { :session_image=>:get, :upload_session_image=>:put }
+
+または、map.resourcesより前に下記のようにmap.connectを追記しても動作します。
+
+ map.connect 'users/:action/:id', :controller => 'users', :action => /session_image|upload_session_image/
+
+= BUGS & FEEDBACK
+バグレポートやフィードバックは歓迎です。tlab@support.email.ne.jp までお送り下さい。
+  

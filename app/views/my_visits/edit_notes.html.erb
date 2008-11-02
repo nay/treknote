@@ -1,0 +1,21 @@
+<%= render :partial => 'shared/my_trek_navigation' %>
+<div id="title" class="blackPaper">
+  <h1>ノートの登録</h1>
+  <% if params[:mode] == 'continue' -%>
+    <%= render :partial => 'steps', :locals => {:step => 3}%>
+    <div class="operation"><%= link_to "登録を完了", my_visit_path %></div>
+  <% else -%>
+    <div class="operation"><%= link_to '戻る', my_visit_path %></div>
+  <% end -%> 
+</div>
+<%= render :partial => 'shared/notice' %>
+
+<div>
+ <div id="notes" class="paper hasTopSpace">
+   <%= render :partial => 'my_notes/list', :locals => {:notes => @visit.notes.paginate(:page => 1, :per_page => 10), :target_note => @note} %>
+ </div>
+  <div id="noteForm" class="paper hasTopSpace hasLeftSpace">
+    <%= render :partial => 'my_notes/form' %>
+  </div>
+  <div style="clear:left;"></div>
+</div>

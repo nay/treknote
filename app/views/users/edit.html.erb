@@ -1,0 +1,28 @@
+<div id="title" class="blackPaper">
+  	<h1>プロフィール情報の変更</h1>
+</div>
+<div id="main" class="paper">
+  
+  <%= error_messages_for :user %>
+  <% form_for :user, :url => user_path(:id => current_user.id), :html => {:method => :put} do |f| -%>
+
+  <p><label for="login">URLで使う名前</label><br/>
+  <%= f.text_field :url_name %></p>
+
+  <p><label for="email">Eメール</label><br/>
+  <%= f.text_field :email %></p>
+  <p><a href="http://www.gravatar.com/">Gravatar.com</a>にアバターを登録するとプロフィールに表示できます</p>
+
+  <p><label for="new_password">パスワード</label><br/>
+  <span style="font-size: 80%;">※変更する場合に入力してください</span><br />
+  <%= password_field_tag :new_password %></p>
+
+  <p><label for="new_password_confirmation">パスワード（確認）</label><br/>
+  <%= password_field_tag :new_password_confirmation %></p>
+
+  <p><label for="flickr_id">FlickrのユーザーID「例:99999999@00」(オプション)</label><br />
+  <%= f.text_field :flickr_id %></p>
+  
+  <p style="margin-top: 16px;"><%= submit_tag '変更' %></p>
+  <% end -%>
+</div>

@@ -1,0 +1,11 @@
+      <div id="header">
+        <% if current_user -%>
+          ようこそ、<%= h current_user.login %>さん
+          <span> - </span>
+        <% end -%>
+        <span class="operation"><%= link_to 'Top', root_path %></span>
+        <% if current_user -%>
+        <span class="operation"><%= link_to 'マイページ', my_maps_path %></span>
+        <span class="operation"><%= link_to 'ログアウト', logout_path -%></span>
+        <% end -%>
+      </div>  	    

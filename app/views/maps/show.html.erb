@@ -1,0 +1,76 @@
+<% content_for(:head) do -%>
+  <%= render :partial => 'maps/load_a_trek_gmap' %>
+<% end -%>
+
+<div id="main" class="blackPaper hasTopSpace" style="margin-bottom: 20px;">
+  <div id="summary">
+    <h1><%= h @map.name %></h1>
+    <% unless @map.description.blank? %>
+      <%= simple_format(h @map.description)%>
+    <% end -%>
+    <% if current_user == @target_user -%>
+      <div class="operation"><%= link_to '編集', my_map_path %></div>
+    <% end -%>
+  </div>
+
+  <div id="map" class="trekMap map">
+  </div>
+
+  <div id="yearsIndex">
+    <%
+    		years = @map.visits.map{|v| v.visited_on.year }.sort
+    -%>
+    <% unless years.empty? -%>
+      <% for year in (years.first/10).floor * 10 .. years.last %>
+        <% if year != years.first && year % 10 == 0 -%>
+          <div style="clear: left;"></div>
+        <% end -%>
+        <div class="item">
+          <% if years.include?(year) -%>
+            <%= link_to(year, visits_in_year_path(:year => year)) %>
+          <% else -%>
+            <%= year %>
+          <% end %>
+        </div>
+      <% end -%>
+      <div style="clear: left;"></div>
+    <% end -%>
+  </div>
+
+  <div id="search">
+    <% form_tag visits_path, :method => :get do -%>
+    検索キーワード: <%= text_field_tag :keyword, '', :size => 30 %> <%= submit_tag '検索', :class => 'shortButton' %>
+    <% end -%>
+  </div>
+</div>
+
+<div id="side" class="hasTopSpace">
+  <%= render :partial => 'shared/profile', :locals => {:user => @target_user} %>
+
+  <% unless @map.visits.empty? %>
+    <div id="visits" class="paper">
+      <h2>最近の更新</h2>
+
+      <% for visit in @map.visits.find(:all, :limit => 3, :order => "updated_at desc") -%>
+        <div class="visitSummary">
+          <h3><%= link_to h(visit.spot.name), visit_path(:id => visit.id) %></h3>
+          <div class="date"><%= format_date visit.visited_on %></div>
+        </div>
+        <% note = visit.notes.updated.find(:first) %>
+        <% if note -%>
+          <div><%= note_subject_or_default note %></div>
+          <div><%= note.body_head(10) %></div>
+        <% end %>
+        <% photo = visit.photos.find(:first, :order => 'created_at desc') -%>
+        <% if photo -%>
+          <div class="imageThumbnail"><%= photo_img_tag photo, 120, 120, {}, :visit_id => visit.id %></div>
+        <% end -%>
+        <div class="footer"><%= format_datetime visit.updated_at %></div>
+      <% end -%>
+
+    </div>
+  <% end %>
+</div>  
+
+<div style="clear: left;">
+</div>

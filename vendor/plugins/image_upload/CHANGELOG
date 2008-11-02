@@ -1,0 +1,23 @@
+[22 May 2008]
+* Fixed the bug that image attached model can't be saved if it is saved with its parent model, and it can have multiple image models.
+* Updated README, added the description about acts_as_list and fixed the svn path to use trunk.
+
+[26 March 2008]
+* Added supports for rails 2.0.  
+
+[25 Janurary 2008]
+* Added foreign_key, polymorphic option to image_attached.
+* Enabled multiple image_attached use.
+* Changed to make image models on before_validation, not on before_save, so that you can validates image models as well as the parent model.
+
+[13 December 2007]
+* Fixed the bug that images smaller than :max_size were resized.
+* Fxied the bug that image model's position values were set wrong in some cases. 
+* Fixed the bug that p=.... was always added with '&'. (This made uploaded images invisible in some cases.)
+
+[6 December 2007]
+* Fixed bugs, updated documents.
+
+[30 November 2007]
+
+* Released on the RubyForge.

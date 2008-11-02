@@ -1,0 +1,47 @@
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<%= GOOGLE_MAPS_KEY %>"
+      type="text/javascript"></script>
+  <% javascript_tag do -%>
+    map = null;
+    overlays = new Array();
+    function onLoad() {
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"));
+        map.setCenter(new GLatLng(<%= @g_map.lat %>, <%= @g_map.lng %>), <%= @g_map.zoom%>);
+        map.addControl(new GLargeMapControl());
+      }
+      <%= remote_function :url => formatted_spots_visits_path(:format => :json), :method => :get,
+					:success => "addVisitsToMap(eval( '(' + request.responseText + ')' ))"
+      %>;
+      GEvent.addListener(map, "click", function(overlay, point) {
+        if (overlay == null) {
+          return;
+        }
+        for (var i = 0; i < overlays.length; i++) {
+          if (overlays[i].marker == overlay) {
+            html = "<div>" + overlays[i].name + "</div>";
+            html += "<ul>";
+            for (var j = 0; j < overlays[i].visits.length; j++) {
+              visit = overlays[i].visits[j];
+              html += "<li><a href='" + visit.trek_map_id + "/visits/" + visit.id + "/notes'>" + visit.visited_on + "</a></li>";
+            }
+            overlay.openInfoWindowHtml(html);
+            break;
+          }
+        }
+      });
+    }
+    
+    function addVisitsToMap(spots) {
+      map.clearOverlays();
+      overlays = new Array();
+      for (var i = 0; i < spots.length; i++) {
+        spot = spots[i].spot;
+        visits = spots[i].visits;
+        marker = new GMarker(new GLatLng(spot.latitude, spot.longitude));
+        overlays.push({marker: marker, name: spot.name, visits: visits});
+        map.addOverlay(marker);
+      }
+    }
+    
+    Event.observe(window, "load", onLoad);
+  <% end -%>

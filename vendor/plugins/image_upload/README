@@ -1,0 +1,336 @@
+Japanese Version:: http://imageupload.rubyforge.org/files/README_JA.html
+
+= ImageUpload
+
+ImageUpload is a plugin for Ruby on Rails to help you upload images with cool Ajax U/I. This plugin has following features.
+
+* You can look the image just after you select the file, before you submit and store data to the database.
+* We designed the image model separated from the image-attached parent model. Therefore, the parent model can have multiple image files naturally. And, it is easy to add features on the image model, for example, tagging to the image models (as well as the parent models).
+* Aware of globalization. Every captions and messages can be replaced easily.
+* If RMagick is installed in your environment, you can resize a image to fit the specified size. Also, the rotating buttons are available.
+
+We tested this plugin on Rails 1.2.6, Rails 2.0.2, IE7.0(Windows), IE6.0(Windows), FireFox(Windows, MacOSX), Safari(MaxOSX).
+
+There are examples in <b>image_examples</b> application.
+
+== image_examples
+
+You can checkout <b>image_examples</b> application with the following command.
+
+ svn checkout http://imageupload.rubyforge.org/svn/trunk/image_examples
+or
+ svn checkout svn://rubyforge.org/var/svn/imageupload/trunk/image_examples
+
+NOTICE: GetText is required for image_exmaples. To install GetText, 
+
+ > gem install gettext
+
+= How to Use ImageUpload Plugin
+
+To use image_upload plugin, the following steps are required.
+
+* install image_upload plugin
+* install responds_to_parent plugin
+* install acts_as_list plugin
+* generate an <b>image model</b>
+* write 'image_attached' in your <b>'parent model'</b> to attache images
+* add codes in your <b>controller</b> to edit the parent model
+* put <b>uploading field</b> in your view
+* display stored images with image_upload helpers (not required)
+
+== Install image_upload plugin
+
+You can install the image_upload plugin with the following command.
+
+ > ruby script/plugin install http://imageupload.rubyforge.org/svn/trunk/image_upload/
+
+== Install RespondsToParent Plugin
+
+The responds_to_parent plugin is required.
+To install it, 
+
+ > ruby script/plugin install http://sean.treadway.info/svn/plugins/responds_to_parent/
+
+NOTICE: The repository seems to be down recently. You can copy responds_to_parent directory from the image_examples application.
+
+ex.
+ > ruby script/plugin install http://imageupload.rubyforge.org/svn/trunk/image_examples/vendor/plugins/responds_to_parent
+
+== Install ActsAsList Plugin
+
+ > ruby script/plugin install acts_as_list
+
+== Generate an Image Model
+ 
+ImageUpload stores an uploaded file as a separated model.
+
+To generate an model,
+
+ > ruby script/generate image_upload stored_file
+ 
+Then the model class file and the migration file will be generated in your application.
+
+'stored_file' can be replaced to any class name. (In this document, I call the model 'StoredFile'.)
+
+You can customize this class directly.
+Also it can be extended by the single table inheritance pattern.
+
+===Save Image Files with Their Original Names
+
+ImageUpload plugin saves image files with auto-generated unique names, not with their original names.
+To use their original names, please generate the image model with use_original_name option.
+
+ ./script/generate image_upload stored_file use_original_name
+
+===Use Non Polymorphic Association
+
+To generate a image model with the association to the specific parent model (without polymorphic association), you can specify the parent model to the generator.
+For example, StoredFile model always belongs_to Article, use generator as follows.
+
+ ./script/generate image_upload stored_file article
+
+If you need further customization (for example, irregular foreign_key), please modify generated model file directly. 
+
+And, please don't forget to specify :polymorphic => false as image_attached option on the parent model.
+
+ image_attached :polymorphic => false
+
+=== Customize the Path to Store Files
+
+To change the path to store files, please overwrite the <b>path</b> method.
+
+ # You can overwrite this.    
+ def path
+   "#{RAILS_ROOT}/public/images/#{self.class.to_s.underscore.pluralize}"
+ end
+
+For example, you can change the path <b>not to be under public/images</b> but the normal application action url so that the application can controll accesses.
+
+Note that the folowing additional works are required if you change the path not to be under public/images.
+
+* url_options are reuqired for stored_image_tag
+* a block is required for image_upload_field
+
+== Write 'image_attached' in the Parent Model
+
+StoredFile model can be attached to the parent model, such as users, articles, comments, etc.
+To attach images, please add 'image_attached' to the parent model as follows.
+
+ class UserProfile < ActiveRecord::Base
+   image_attached
+ end
+
+You can call image_attached with following options.
+
+* :class_name - The class name of the image model. Default is 'StoredFile'.
+* :foreign_key - The foreign key for the image association. Default is same as AR.
+* :polymorphic - False if you don't want use polymorphic association for images. Default is true. Please take care for options of generating image models.
+* :size - The max number of the images. Default is 1.
+* :name - The association name of the image model in the parent class. Default is :image (if size is 1) or :images (if size > 1).
+* :max_size - The value should be a hash like {:width => 40 , :height => 40}. If an uploaded image is larger than this :max_size, the image would be resized to fit within the :max_size while retaining the original aspect ratio. To use this option, RMagick is required in your environment.
+* :types - The permitted file types as an array. :GIF, :PNG, :JPEG, :BMP, :PPM, :PBM, :PGM, :XBM, :TIFF, :XPM, :PSD, :PCX, :SWF, :OTHER are available (although we tested only :GIF, :PNG, :JPEG and :OTHER). The default is [:JPEG, :PNG, :GIF].
+* :type_error_message - The error message to be displayed when the type error occurs. The default is 'Please upload jpg/png/gif image files.'.
+
+For example, if you want Entry model to have 3 images, please use options like this.
+
+  image_attached :size => 3, :class_name => 'EntryImage'
+ 
+You can use multiple image_attached association on one model.
+For example, to attach user photo and house photo to the User model, write as follows.
+
+ class User < ActiveRecord::Base
+   image_attached :name => :profile_image, :class_name => 'ProfileImage', :polymorphic => false
+   image_attached :name => :house_image, :class_name => 'HouseImage'
+ end
+
+=== Image Attached Model's Association
+
+An image attached model has has_one or has_many association to image models.
+Actually, the real association name is 'stored_' + :name option.
+Please use :name option value as 'association like name' for reference.
+For example, the default :name option value :images generates parent.images method to get an array of image models.
+:image generates parent.image method to get an image model or nil.
+
+In general, you don't have to care for stored_xxx associations by yourself. That sould be controlled by image_upload plugin.
+ 
+== Add Codes in Your Controller to Edit the Parent Model
+
+To use Ajax I/F, please add following features to the controller which edits the parent model.
+
+ 1) Call image_upload.
+ 2) Call set_image_to(@model) before savig @model.
+ 3) Call clear_session_images after saving.
+
+Here is the example of the 'UserProfileController'.
+
+  class UserProfileController < ApplicationController
+    image_upload 'User', :starts_at => [:new, :edit] # 1)
+  
+    def new
+      @profile = UserProfile.new
+    end
+  
+    def edit
+      @profile = UserProfile.find(params[:id])
+    end
+  
+    def update
+      @profile = UserProfile.find(params[:id])
+      @profile.attributes = params[:user_profile]
+      set_images_to(@profile)                     # 2)
+      if @profile.save
+        clear_session_images                      # 3)
+        redirect_to :action => 'index'
+      else
+        render :action => 'edit'
+      end
+    end
+  
+  end
+
+=== image_upload method
+
+The first argument of image_upload is the image attached model class name.
+The second argument (hash) is used as options. 
+Typically, you might specify at least one action as the :stars_at option.
+
+Options are,
+* :starts_at - Specify the starting points (methods as symbols, in an array) of uploading. Before these actions, image_upload clears the session image data. You can directly call clear_session_images instead of using this option.
+* :tmp_dir - Specify the directory path to place the tempolary uploaded files (before submitted). Default is '#{RAILS_ROOT}/tmp/images'.
+
+NOTICE: image_upload can be called only once in one controller. 
+That means, a controller can only upload images attached to the one parent model.
+
+=== Added Actions
+
+The image_upload method adds following actions.
+If you use filters, you might have to be careful about these actions.
+For example, please add these actions to :except if you don't want to apply your filter on these.
+
+* session_image - send out the image file managed on the session
+* upload_session_image - upload an image file on the temporary directiory
+* rotate_session_image - rotate the image managed on the session
+* delete_session_image - delete the image managed on the session
+* delete_stored_image - delete the image stored in the database
+
+NOTICE: session_image outputs image binary. Please don't forget to skip after-filters modifying the response header for text contents.
+
+=== How to Customize the Validation of Uploaded Image Files
+
+If the original validation of the uploaded file is required, please implement validate_image(path) method in your controller for uploading.
+In validate_image, please add the error_message to @image_errors when there is any error.
+The following example validates the file's size.
+
+ protected
+ def validate_image(path)
+   if File.size(path) > 512.kilobytes
+     @image_errors << 'The image file should not be larger than 512KB.'
+   end
+ end
+
+== Write Uploading Field in Views
+
+To write uploading field tag using Ajax, use <b>image_upload_field</b> method.
+
+  <%= image_upload_field(@profile, :width => 80, :height => 60, :form_id => 'myform') %>
+
+The first argument is the parent model to attach images. The second argument works as options.
+The options are,
+
+* :width - The max width to display image by img tag. The default is 120.
+* :height - The max height to display image by img tag. The default is 120.
+* :form_id - The id of the form element contains the uploading field. The default is 'form'.
+* :delete_caption - The caption text for 'Delete' button in the Ajax I/F. the default is 'Delete'.
+* :template_extension - If specified, used as the html contents after the delete button. '%%original_filename%%' in the string would be replaced to the original file name.
+* :rotate - If :rotate => true is specified, the rotating buttons are available. Pushing a rotating button makes the temporary saved image rotate. To use this option, RMagick is required in your environment.
+* :rotating_angle - The rotating angle for one rotating action. The default is 90.
+* :name - If multiple image_attached defined, need to specify the image type by assocaition-like name (:name option for image_atached).
+
+NOTICE: This method must be called with a block to get url if you store image files under non public/images.
+
+ <%= image_upload_field(@entry) {|f|
+   url_for(:controller => 'entries',
+           :action => 'image',
+           :unique_key => file.unique_key,
+           :ext => file.ext)} %>
+
+Please care about the envrionment arount the field.
+Following conditions are required.
+
+* image_upload_field must be in a form element.
+* The form element's id is supposed to be 'form'. If other id is given, please specify the :form_id option.
+* form must be :multipart => true.
+* Requires Ajax libraries. ex. <%= javascript_include_tag :defaults %>
+
+== Display Stored Images
+
+image_upload provides <b>stored_image_tag</b> helper method. This is useful in both cases,
+storing files under public/images or not.
+
+ex. display an image under non public/images
+  <%= stored_image_tag image, :action => 'image', :id => entry.id, :unique_key => image.unique_key, :ext => image.ext %>
+  
+ex. display an image under public/images
+  <%= stored_image_tag image %>
+
+The arguments of stored_image_tag is as followings;
+  def stored_image_tag(image, url_options = {}, html_options = {}, default_image = nil)
+
+* image - The image model (not the parent model)
+* url_options - The url options of the image. Required for non public/images files.
+* html_options - Html options for img tag.
+* default_image - Optional. The default image file path (under public/images). It is displayed when the image model is nil.
+
+== Sending Image File from Controller
+
+If you store the image files under non-public area, you can implement the downloading(sending) action easily with <b>send_stored_file</b> method.
+
+ ex.
+ 
+ # You can add access controll feature here.
+ def image
+   # Get the image model.
+   entry = Entry.find(params[:id])
+   image = entry.images.detect{|i| i.unique_key == params[:unique_key]}
+   # Send it.
+   send_stored_file(image)
+ end
+
+== Delete the Temporary Uploaded Files
+
+image_upload doesn't care about the garbage temporary files.
+Garbages are left in some cases.
+For example, after an user stopped uploading before submitting.
+
+Please delete old temporary uploaded files (like rails session files) routinely.
+
+== Use the Image Model without Ajax I/F
+
+To use the Image Model without Ajax I/F, use buffer= method to store the uploaded buffer stream before saving.
+
+ex.
+
+ <%= file_field(:message, :attached_file_buffer) %>
+  
+ class Message
+   attr_accessor :attached_file_buffer
+   protected 
+   def before_create
+     f = build_attached_file
+     f.buffer = attached_file_buffer
+   end
+ end
+
+==Use ImageUpload with Rails 2.0 scaffold
+
+Please add the colection option as follows to the scaffold's map.resources in routes.rb.
+
+ map.resources :users, :collection => { :session_image=>:get, :upload_session_image=>:put }
+
+Adding the following line before map.resources also works.
+
+ map.connect 'users/:action/:id', :controller => 'users', :action => /session_image|upload_session_image/
+
+= BUGS & FEEDBACK
+Bug reports and feedback are very welcome. Please send it to tlab@support.email.ne.jp
+ 

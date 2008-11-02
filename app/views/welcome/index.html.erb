@@ -1,0 +1,62 @@
+<div id="title" class="blackPaper">
+  <h1>Trek Note - 行った場所を記録しよう！</h1>
+</div>
+<%= render :partial => 'shared/notice' %>
+
+<div>
+<div id="main" class="paper hasTopSpace">
+  <h2>TrekNote（トレックノート）とは？</h2>
+  <p>TrekNoteは、「場所」と「日」と「記録」を残すためのサービスです。旅行の記録はもちろん、ラーメン屋巡り・秘湯巡りといった特定のジャンルの記録を残すのにも便利です。</p>
+  <ul>
+    <li>自分がこれまで行ったことのある場所を一覧したい</li>
+    <li>いつどんな旅行にいったかを簡単に見たい</li>
+    <li>写真を、撮影した場所ごとに整理して見たい</li>
+    <li>この場所には何回か来ているけれど、いつ来たっけ？　その時々で撮影した写真を見比べたい</li>
+    <li>自分がいかにたくさんのラーメン屋を制覇しているかを公開して自慢したい</li>
+  </ul>
+  <p>TrekNote はこのような目的に特化したシンプルなサービスです。</p>
+
+  <h3>動作環境</h3>  
+  <p>Firefox3でのご利用をお奨めします。IEでは一部の機能が正しく動作しない場合があります。</p>
+</div>
+
+<div id="side" class="hasLeftSpace hasTopSpace">
+  <div class="blackPaper">
+  <% if current_user -%>
+	<p>ようこそ、<%= h current_user.login %>さん！</p>
+	<p><%= link_to 'マイページへ', my_maps_path %></p>
+
+	<% else -%>
+  <div class="error"><%= flash[:error] %></div>
+  <% form_tag session_path do -%>
+  <p><label for="login">ユーザー名</label><br/>
+  <%= text_field_tag 'login', flash[:login] %></p>
+
+  <p><label for="password">パスワード</label><br/>
+  <%= password_field_tag 'password' %></p>
+
+  <p>
+    <%= check_box_tag 'remember_me', "1", false, :style => 'width: 2em;' %>
+	  <label for="remember_me">ログイン情報を保存</label>
+	</p>
+  <p><%= submit_tag 'ログイン' %></p>
+  <% end -%>
+	
+	<p class="operation"><%= link_to '新規登録', new_user_path %></p>
+	<% end -%>
+  </div>
+
+  <div class="paper hasTopSpace">
+    <h3>更新履歴</h3>
+    <h4>2008/10/06</h4>
+    <p>IE6, 7 からの表示を調整しました。アルバムを追加しました。</p>
+    <h4>2008/10/05</h4>
+    <p>Flickrから写真を登録できるようになりました。</p>
+  </div>
+  
+  
+</div>
+
+<div style="clear:left;"></div>
+
+</div>
