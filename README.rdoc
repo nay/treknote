@@ -2,6 +2,6 @@
 
 Trek Note is a web application for sharing photos and notes with locations and dates.
 
-Before starting application, please create your own config/initializers/hosting.rb from hosting_template.rb.
+Before starting application, please create your own config/initializers/hosting.rb from hosting.rb.template.
 Your GOOGLE_MAPS_KEY and FLICKR_KEY are required. 
 And please set your mailing configuration on config/environment.rb and hosting.rb.
